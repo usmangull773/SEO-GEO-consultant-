@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FLEXECHARGE Pre-Migration Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: single-column pre-migration review one-pager; dark energy hero, severity-striped findings, 4-step strategy rail, audit CTA band */
+:root{
+  --bg:#f5f7f4; --surface:#ffffff; --surface-2:#eef2ed; --ink:#13211b; --muted:#59685f; --line:#e1e7de;
+  --accent:#0e9f6e; --accent-ink:#0a7a54;
+  --crit:#e5484d; --high:#e8880f; --med:#2f78e6; --good:#159a5a;
+  --hero:#0d1815; --hero-ink:#eaf3ee; --hero-muted:#93a99d;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1310; --surface:#121b17; --surface-2:#16211b; --ink:#e9f1ec; --muted:#95a89d; --line:#233029;
+  --accent:#2ad79a; --accent-ink:#7ef0c6; --crit:#ff6369; --high:#f5a524; --med:#5a9bff; --good:#3ecf80;
+  --hero:#080f0c; --hero-ink:#eaf3ee; --hero-muted:#8fa79b; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0c1310; --surface:#121b17; --surface-2:#16211b; --ink:#e9f1ec; --muted:#95a89d; --line:#233029;
+  --accent:#2ad79a; --accent-ink:#7ef0c6; --crit:#ff6369; --high:#f5a524; --med:#5a9bff; --good:#3ecf80;
+  --hero:#080f0c; --hero-ink:#eaf3ee; --hero-muted:#8fa79b; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.wrap{max-width:860px;margin:0 auto;padding-inline:20px;padding-block:0}
+h1,h2,h3{font-family:"Sora","IBM Plex Sans",sans-serif;text-wrap:balance;margin:0}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+
+/* hero */
+.hero{background:var(--hero);color:var(--hero-ink);border-radius:18px;padding:36px 30px;margin-top:26px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-60px;width:230px;height:230px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(42,215,154,.32),transparent 70%)}
+.hero .kicker{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent)}
+.hero h1{font-size:clamp(25px,5vw,35px);font-weight:700;margin:12px 0 12px;line-height:1.14;position:relative}
+.hero p{color:var(--hero-muted);max-width:60ch;margin:0;font-size:15px;position:relative}
+.hero .brandrow{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:.02em;position:relative}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(42,215,154,.18)}
+
+/* tl;dr risk strip */
+.tldr{display:flex;gap:16px;align-items:flex-start;background:var(--surface);border:1px solid var(--line);
+  border-left:4px solid var(--crit);border-radius:12px;padding:18px 20px;margin-top:18px}
+.tldr .big{font-family:"Sora",sans-serif;font-weight:700;font-size:17px;line-height:1.3;margin-bottom:4px}
+.tldr p{margin:0;color:var(--muted);font-size:14px}
+
+/* sections */
+.sec{margin-top:36px}
+.sec > h2{font-size:19px;font-weight:600;display:flex;align-items:baseline;gap:10px}
+.sec .num{font-family:"IBM Plex Mono",monospace;color:var(--accent-ink);font-size:14px;font-weight:600}
+.sec .lead{color:var(--muted);font-size:13.5px;margin:6px 0 2px}
+
+/* findings */
+.groupname{font-family:"IBM Plex Mono",monospace;text-transform:uppercase;letter-spacing:.1em;font-size:11px;color:var(--muted);margin:18px 0 8px}
+.find{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:10px;
+  display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start;border-left-width:4px;border-left-style:solid;min-width:0}
+.find.crit{border-left-color:var(--crit)} .find.high{border-left-color:var(--high)}
+.find.med{border-left-color:var(--med)} .find.good{border-left-color:var(--good)}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 8px;border-radius:6px;white-space:nowrap;align-self:start;color:#fff}
+.chip.crit{background:var(--crit)} .chip.high{background:var(--high)} .chip.med{background:var(--med)} .chip.good{background:var(--good)}
+.find .body{min-width:0}
+.find .t{font-weight:600;font-size:14.5px;margin:0 0 3px}
+.find .d{color:var(--muted);font-size:13.5px;margin:0}
+.find .fix{font-size:13px;margin:7px 0 0;padding-top:7px;border-top:1px dashed var(--line)}
+.find .fix b{color:var(--accent-ink);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
+
+/* strategy */
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px}
+.step-card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px}
+.step-card .n{font-family:"Sora",sans-serif;font-weight:700;font-size:26px;color:var(--accent);line-height:1}
+.step-card h3{font-size:15px;font-weight:600;margin:8px 0 5px}
+.step-card p{margin:0;color:var(--muted);font-size:13px}
+
+/* cta */
+.cta{background:linear-gradient(135deg,var(--hero),#0f241b);color:var(--hero-ink);border-radius:18px;padding:32px 28px;margin-top:32px;text-align:center}
+.cta h2{font-size:clamp(20px,4.5vw,26px);font-weight:700;color:#fff;margin-bottom:10px}
+.cta p{color:var(--hero-muted);max-width:56ch;margin:0 auto 18px;font-size:14.5px}
+.pill{display:inline-flex;align-items:center;gap:9px;background:var(--accent);color:#04231a;font-weight:700;
+  font-family:"Sora",sans-serif;font-size:15px;padding:13px 22px;border-radius:999px}
+.cta .sub{color:var(--hero-muted);font-size:13px;margin-top:14px}
+
+.foot{color:var(--muted);font-size:12px;text-align:center;margin:26px 0 40px;font-family:"IBM Plex Mono",monospace;letter-spacing:.04em}
+@media (max-width:560px){ .steps{grid-template-columns:1fr} .tldr{flex-direction:column;gap:8px} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="brandrow"><span class="dot"></span> FLEXECHARGE</div>
+    <div class="kicker" style="margin-top:16px">Pre-migration SEO &amp; GEO review</div>
+    <h1>Before you rebuild, protect the rankings and AI visibility you already have.</h1>
+    <p>A focused review of your Webflow site and its planned redesign, the new homepage, interactive Europe map, and pain-point solution pages, so the switch does not quietly cost you traffic or AI citations.</p>
+  </section>
+
+  <!-- TL;DR RISK -->
+  <div class="tldr">
+    <span class="chip crit" style="margin-top:2px">Core risk</span>
+    <div>
+      <div class="big">You rank #1 on Google for your category, yet AI engines name your competitors, not you.</div>
+      <p>That gap, plus a redesign that changes your URL structure, is exactly where rankings and AI visibility get lost. Below is the full list, ranked, with the fix direction for each.</p>
+    </div>
+  </div>
+
+  <!-- FINDINGS -->
+  <section class="sec">
+    <h2><span class="num">01</span> What the review surfaced</h2>
+    <p class="lead">Full list, most urgent first. Severity shows what to settle before the rebuild.</p>
+
+    <div class="groupname">AI search &amp; GEO visibility</div>
+    <div class="find crit">
+      <span class="chip crit">Critical</span>
+      <div class="body">
+        <p class="t">AI engines list competitors as the leaders, not FLEXECHARGE</p>
+        <p class="d">For your core category, AI search currently names AMPECO, ChargePoint, Monta and Virta Hub. FLEXECHARGE is not mentioned, even though it ranks #1 in standard Google results.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Build entity clarity, citable answer-ready pages and consistent brand signals so AI models surface you for your own category.</p>
+      </div>
+    </div>
+    <div class="find good">
+      <span class="chip good">Good</span>
+      <div class="body">
+        <p class="t">Your robots.txt already welcomes AI crawlers</p>
+        <p class="d">GPTBot, ClaudeBot and PerplexityBot are explicitly allowed. A solid base to build the GEO layer on.</p>
+      </div>
+    </div>
+    <div class="find med">
+      <span class="chip med">Medium</span>
+      <div class="body">
+        <p class="t">No llms.txt yet</p>
+        <p class="d">There is no llms.txt to point AI crawlers at your most important pages, an easy early-mover win as the new structure ships.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Add an llms.txt aligned to the new pain-point structure.</p>
+      </div>
+    </div>
+
+    <div class="groupname">Indexation &amp; migration risk</div>
+    <div class="find crit">
+      <span class="chip crit">Critical</span>
+      <div class="body">
+        <p class="t">Far more URLs are indexed than your sitemap lists</p>
+        <p class="d">Google indexes well over a thousand URLs for the site, while your sitemap lists only 74. Redirecting just the sitemap URLs during the rebuild would strand the rest, including pages that hold rankings and AI citations.</p>
+        <p class="fix"><b>Fix</b> &nbsp;A 1:1 redirect map for every live URL, not only the sitemap, before switching to pain-point pages.</p>
+      </div>
+    </div>
+
+    <div class="groupname">Host, canonical &amp; redirects</div>
+    <div class="find high">
+      <span class="chip high">High</span>
+      <div class="body">
+        <p class="t">Apex-to-www works, but through a 2-hop redirect chain</p>
+        <p class="d">The homepage resolves correctly to https + www, but via two 301 redirects instead of one, which wastes crawl signal.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Collapse to a single 301 hop to the final URL.</p>
+      </div>
+    </div>
+    <div class="find med">
+      <span class="chip med">Medium</span>
+      <div class="body">
+        <p class="t">A separate subdomain is also indexed</p>
+        <p class="d">A video subdomain appears in the index alongside the main site, with no clear host policy tying them together.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Set one canonical host and subdomain policy across the whole property.</p>
+      </div>
+    </div>
+
+    <div class="groupname">On-page, headings &amp; schema</div>
+    <div class="find high">
+      <span class="chip high">High</span>
+      <div class="body">
+        <p class="t">Two Organization schemas, with office addresses that disagree with your footer</p>
+        <p class="d">The homepage carries two competing Organization entities, and the addresses inside them do not match the addresses in your own footer. That confuses both Google and AI about who you are.</p>
+        <p class="fix"><b>Fix</b> &nbsp;One authoritative Organization entity, with a consistent name and address everywhere.</p>
+      </div>
+    </div>
+    <div class="find high">
+      <span class="chip high">High</span>
+      <div class="body">
+        <p class="t">Two H1 headings on the homepage</p>
+        <p class="d">The homepage has two H1 tags (one hidden in the code), which blurs the page's main-topic signal.</p>
+        <p class="fix"><b>Fix</b> &nbsp;One clear H1 per page, with a logical heading order in the new templates.</p>
+      </div>
+    </div>
+    <div class="find med">
+      <span class="chip med">Medium</span>
+      <div class="body">
+        <p class="t">FAQ-style sections with no FAQ schema</p>
+        <p class="d">Product pages use accordion Q&amp;A blocks but expose no FAQ, Service or Breadcrumb structured data, missing straightforward AI and rich-result wins.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Bake FAQ, Service and Breadcrumb schema into the solution-page template.</p>
+      </div>
+    </div>
+
+    <div class="groupname">Performance &amp; the new map</div>
+    <div class="find high">
+      <span class="chip high">High</span>
+      <div class="body">
+        <p class="t">The homepage carries a heavy load of third-party scripts</p>
+        <p class="d">A large number of third-party scripts weigh down how fast the homepage becomes usable. The new interactive map will add to that if its performance is not budgeted up front.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Trim and defer non-critical scripts, and set a performance budget for the map before launch.</p>
+      </div>
+    </div>
+    <div class="find med">
+      <span class="chip med">Medium</span>
+      <div class="body">
+        <p class="t">The interactive Europe map must stay crawlable and accessible</p>
+        <p class="d">If the new map renders its content only in JavaScript, Google and AI engines will not read it.</p>
+        <p class="fix"><b>Fix</b> &nbsp;Render the map's content in real, accessible HTML with proper text alternatives.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STRATEGY OVERVIEW -->
+  <section class="sec">
+    <h2><span class="num">02</span> How I would resolve it</h2>
+    <p class="lead">The direction, at a glance. The ranked, step-by-step plan comes with the audit.</p>
+    <div class="steps">
+      <div class="step-card"><div class="n">1</div><h3>Lock the foundation</h3><p>One host, one canonical convention, one clean 301 per redirect, clear subdomain rules.</p></div>
+      <div class="step-card"><div class="n">2</div><h3>Get the template right</h3><p>Search-intent-matched solution pages with answer-ready sections, FAQ, schema and entity clarity.</p></div>
+      <div class="step-card"><div class="n">3</div><h3>Migrate safely</h3><p>A 1:1 redirect map covering every live and AI-cited URL, so no page loses its equity.</p></div>
+      <div class="step-card"><div class="n">4</div><h3>Add the GEO layer</h3><p>llms.txt, consistent entity signals and answer-readiness so AI engines start naming you.</p></div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta">
+    <h2>I can turn this into a complete, prioritized audit in 24–48 hours</h2>
+    <p>Mapped directly to your redesign, so design and development get one ranked action list of exactly what to fix, why, and in what order, before they build.</p>
+    <span class="pill"><span class="dot" style="background:#04231a"></span> Let's do a short call to walk through it</span>
+    <div class="sub">This is the priority shortlist. The full audit goes deeper.</div>
+  </section>
+
+  <div class="foot">Pre-migration SEO &amp; GEO review · October 2026</div>
+
+</div>
+</body>
+</html>
